@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrations-database-$CI_PROJECT_NAME
+  namespace: $NAMESPACE
+spec:
+  template:
+    spec:
+      containers:
+        - command:
+            - yarn
+            - typeorm:run-migrations
+          name: migrations-database-$CI_PROJECT_NAME
+          envFrom:
+            - configMapRef:
+                name: $CI_PROJECT_NAME
+                optional: false
+          image: nexus.api-connect.io/$IMAGE_NAME_BUILD
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: nexus
+      restartPolicy: Never
+

@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  $CI_PROJECT_NAME
+  namespace: devops-cloud
+  labels:
+    name:  $CI_PROJECT_NAME
+    app: $CI_PROJECT_NAME
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: $CI_PROJECT_NAME
+  template:
+    metadata:
+      labels:
+        name:  $CI_PROJECT_NAME
+        app: $CI_PROJECT_NAME
+    spec:
+      containers:
+      - image:  nexus.api-connect.io/$CI_PROJECT_NAME:$IMAGE_TAG
+        envFrom:
+            - configMapRef:
+                name: $CI_PROJECT_NAME
+                optional: false
+        name:  $CI_PROJECT_NAME
+        resources:
+          requests:
+             cpu: 100m
+             memory: 50M
+          limits:
+              cpu: 500m
+              memory: 512M
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: nexus
+      restartPolicy: Always
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: $CI_PROJECT_NAME
+  namespace: devops-cloud
+spec:
+  ports:
+    - name: port
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+    - name: grpc
+      port: 8090
+      protocol: TCP
+      targetPort: 8090
+  selector:
+    app: $CI_PROJECT_NAME
+  type: ClusterIP
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: $CI_PROJECT_NAME
+  annotations:
+    nginx.org/rewrites: serviceName=$CI_PROJECT_NAME rewrite=/
+  labels:
+    {}
+  namespace: devops-cloud
+
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: core-cloudops.cloud.cmctelecom.vn
+      http:
+        paths:
+          - backend:
+              service:
+                name: $CI_PROJECT_NAME
+                port:
+                  number: 8000
+            path: /$CI_PROJECT_NAME/
+            pathType: Prefix
