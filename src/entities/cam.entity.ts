@@ -1,5 +1,16 @@
-import { Expose, plainToClass } from "class-transformer";
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Expose, plainToClass } from 'class-transformer';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+} from 'typeorm';
+import { CamConfig } from './camConfig.entity';
+import { Noti } from './noti.entity';
 
 @Entity({ name: 'cam' })
 export class Cam {
@@ -27,6 +38,22 @@ export class Cam {
   @Column()
   @Expose()
   description: string;
+
+  @Column({ default: false })
+  @Expose()
+  active: boolean;
+
+  @OneToOne(() => CamConfig, (camConfig) => camConfig.cam)
+  @JoinColumn({ name: 'idCam' })
+  camConfig: CamConfig;
+
+  @ManyToMany(() => Noti, (noti) => noti.cams)
+  @JoinTable({
+    name: 'cam_noti',
+    joinColumn: { name: 'idCam', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'idNoti', referencedColumnName: 'id' },
+  })
+  notis: Noti[];
 
   constructor(cam: Partial<Cam>) {
     Object.assign(

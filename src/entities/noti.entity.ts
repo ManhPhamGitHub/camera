@@ -1,5 +1,6 @@
-import { Expose, plainToClass } from "class-transformer";
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Expose, plainToClass } from 'class-transformer';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Cam } from './cam.entity';
 
 @Entity({ name: 'noti' })
 export class Noti {
@@ -15,6 +16,9 @@ export class Noti {
   @Column({ type: 'json' })
   @Expose()
   config: any;
+
+  @ManyToMany(() => Cam, (cam) => cam.notis)
+  cams: Cam[];
 
   constructor(noti: Partial<Noti>) {
     Object.assign(

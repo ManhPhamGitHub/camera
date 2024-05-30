@@ -1,5 +1,14 @@
-import { Expose, plainToClass } from "class-transformer";
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Expose, plainToClass } from 'class-transformer';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+} from 'typeorm';
+import { CamConfig } from './camConfig.entity';
+import { Provider } from '@entities';
 
 @Entity({ name: 'storage' })
 export class Storage {
@@ -26,11 +35,18 @@ export class Storage {
 
   @Column()
   @Expose()
-  idCam: string;
+  idCam: string; // TODO FIX idCamConfig , relation one camConfig - many storage
 
   @Column()
   @Expose()
   idProvider: string;
+
+  @OneToOne(() => CamConfig, (camConfig) => camConfig.storage)
+  camConfig: CamConfig;
+
+  @ManyToOne(() => Provider, (provider) => provider.storages)
+  @JoinColumn({ name: 'idProvider' })
+  provider: Provider;
 
   constructor(storage: Partial<Storage>) {
     Object.assign(

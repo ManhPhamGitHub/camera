@@ -1,0 +1,161 @@
+import { Cam } from '@entities';
+import { Injectable } from '@nestjs/common';
+import { CamRepository } from '@repositories';
+import { PassThrough } from 'stream';
+import * as ffmpeg from 'fluent-ffmpeg';
+import { v2 as Cloudinary } from 'cloudinary';
+import { Storage } from '@google-cloud/storage';
+import { join } from 'path';
+import * as fs from 'fs';
+import { promisify } from 'util';
+import { exec } from 'child_process';
+
+const execAsync = promisify(exec);
+
+@Injectable()
+export class CamService {
+  constructor(private CamRepository: CamRepository) {}
+  findOne(option) {
+    return this.CamRepository.findOne(option);
+  }
+  findAll(option) {
+    return this.CamRepository.findAll(option);
+  }
+  insert(cam: Cam) {
+    return this.CamRepository.insert(cam);
+  }
+  update(id: number | string, updateData: any) {
+    return this.CamRepository.update(id, updateData);
+  }
+
+  updateMulti(option: any, updateData: any) {
+    return this.CamRepository.updateMulti(option, updateData);
+  }
+
+  async startStreaming(cameraUrl: string): Promise<void> {
+    const stream = new PassThrough();
+    const currentDate = new Date();
+
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Adding 1 because months are zero-based
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const hours = String(currentDate.getHours()).padStart(2, '0');
+    const previousHours = String(currentDate.getHours() - 2).padStart(2, '0');
+    const folderPath = join(__dirname, `../storage/${year}-${month}-${day}`);
+
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+
+    const formattedDate = `${year}-${month}-${day}_${hours}`;
+    const fileName = `output_${formattedDate}.mp4`;
+    const fileNamePreviousHours = `output_${year}-${month}-${day}_${previousHours}.mp4`;
+
+    // Upload the recorded MP4 file to Cloudinary with the generated filename
+    const outputFilePath = join(folderPath, fileName);
+    const outputFilePathPreviousHour = join(folderPath, fileNamePreviousHours);
+
+    console.log('outputFilePath', outputFilePath);
+
+    // Create an ffmpeg process to read from the camera URL
+    const ffmpegCommand = ffmpeg(cameraUrl)
+      .inputOptions(['-rtsp_transport tcp'])
+      .outputOptions([
+        '-c:v libx264',
+        '-vf scale=1280:720',
+        '-f segment',
+        '-segment_time 3600',
+        '-reset_timestamps 1',
+        '-strftime 1',
+      ])
+      .output(outputFilePath)
+      .on('error', (err) => {
+        console.error('FFmpeg error:', err);
+        stream.end();
+        // reject(err); // Reject the promise on error
+      })
+      .on('start', async (commandLine) => {
+        console.log('Spawned FFmpeg with command:', commandLine);
+
+        await this.uploadToGoogleCloud(
+          outputFilePathPreviousHour,
+          fileNamePreviousHours,
+          `${year}-${month}-${day}`,
+        );
+        // Handle Cloudinary upload result as needed
+      })
+      .on('end', async () => {
+        console.log('FFmpeg process finished');
+        // resolve(); // Resolve the promise on completion
+      });
+
+    await ffmpegCommand.run(stream);
+  }
+
+  uploadToCloudinary = (filePath) => {
+    return new Promise((resolve, reject) => {
+      Cloudinary.uploader.upload(
+        filePath,
+        { resource_type: 'video' },
+        (error, result) => {
+          if (error) {
+            console.error('Error uploading to Cloudinary:', error);
+            reject(error);
+          } else {
+            console.log('Upload to Cloudinary successful:', result);
+            resolve(result);
+          }
+        },
+      );
+    });
+  };
+
+  async checkRtspConnection(rtspUrl: string): Promise<boolean> {
+    const ffmpegCommand = `ffmpeg -rtsp_transport tcp -i "${rtspUrl}" -t 5 -f null -`;
+
+    try {
+      const { stdout, stderr } = await execAsync(ffmpegCommand);
+      console.log('FFmpeg output:', stdout);
+      console.log('FFmpeg error output:', stderr);
+      return true; // Connection successful
+    } catch (error) {
+      console.error('Error checking RTSP connection:', error);
+      return false; // Connection failed
+    }
+  }
+
+  private async uploadToGoogleCloud(
+    filePath: string,
+    fileName: string,
+    folderName: string,
+  ) {
+    try {
+      const storage = new Storage({
+        projectId: 'fir-a5cfe',
+        keyFilename:
+          '/root/manhpham/CameraServices/src/secret/fir-a5cfe-b582bda476a7.json',
+      });
+      console.log('uploadToGoogleCloud progress => ', filePath);
+      await fs.promises.access(filePath, fs.constants.F_OK);
+
+      const bucket = storage.bucket('ducmanhpham');
+
+      const destination = `${folderName}/${fileName}`;
+      await bucket.upload(filePath, {
+        destination,
+        metadata: {
+          contentType: 'video/mp4',
+        },
+      });
+      console.log(`File uploaded to ${destination}`);
+
+      await fs.unlinkSync(filePath);
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        console.error('File does not exist, skipping upload.');
+      } else {
+        console.error('Error:', err);
+      }
+    }
+  }
+}

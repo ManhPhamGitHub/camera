@@ -44,7 +44,7 @@ export const env = convict({
   mysql: {
     host: {
       format: String,
-      default: '',
+      default: '127.0.0.1',
       env: 'MYSQL_HOST',
       doc: 'Mysql host',
     },
@@ -56,19 +56,19 @@ export const env = convict({
     },
     username: {
       format: String,
-      default: 'admin',
+      default: 'root',
       env: 'MYSQL_USERNAME',
       doc: 'Mysql username',
     },
     password: {
       format: String,
-      default: '',
+      default: 'root',
       env: 'MYSQL_PASSWORD',
       doc: 'Mysql password',
     },
     database: {
       format: String,
-      default: 'cloudops_authentication_partner',
+      default: 'camera',
       env: 'MYSQL_DATABASE',
       doc: 'Mysql database',
     },
