@@ -44,7 +44,7 @@ export const env = convict({
   mysql: {
     host: {
       format: String,
-      default: 'backend',
+      default: 'mysql',
       env: 'MYSQL_HOST',
       doc: 'Mysql host',
     },

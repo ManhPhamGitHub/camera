@@ -24,7 +24,7 @@ services:
   camera-backend:
     restart: always
     volumes:
-      - ./backend:/app
+      - ./:/app
     build:
       context: .
       dockerfile: ./Dockerfile

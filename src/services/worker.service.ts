@@ -9,10 +9,10 @@ export class WorkerService {
     private readonly cameraService: CamService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_HOUR)
   async handleCron() {
     const listCamera = await this.camConfigRepository.findAll({
-      where: { [`"cam"."status"`]: 'active' },
+      // where: {  },
       relations: {
         cam: true,
         provider: true,
