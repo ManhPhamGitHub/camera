@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { configSwagger, CustomLogger } from '@configs';
 import * as compression from 'compression';
 import * as bodyParser from 'body-parser';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { env } from '@environments';
 import {
@@ -16,16 +17,16 @@ import {
   VersioningType,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new CustomLogger(),
     cors: true,
   });
 
   app.use(compression());
   app.use(bodyParser.json({ limit: '50mb' }));
-
 
   app.use(
     bodyParser.urlencoded({
@@ -67,6 +68,7 @@ async function bootstrap() {
 
   // Config microservices
   //GrpcConfig.setupMicroservicesGrpc(app, GRPC_SERVICES);
+  app.useStaticAssets(join(__dirname, '..', 'storage'));
 
   await app.startAllMicroservices();
 
