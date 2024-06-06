@@ -5,9 +5,11 @@ import {
   PrimaryGeneratedColumn,
   JoinColumn,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { Cam } from './cam.entity';
 import { Storage } from './storage.entity';
+import { Provider } from './provider.entity';
 @Entity({ name: 'cam_config' })
 export class CamConfig {
   @Column({ type: 'uuid' })
@@ -27,17 +29,15 @@ export class CamConfig {
   @Expose()
   output: string;
 
-  @Column()
-  @Expose()
-  idStorage: string;
-
   @OneToOne(() => Cam, (cam) => cam.camConfig)
   @JoinColumn({ name: 'idCam' })
   cam: Cam;
 
-  @OneToOne(() => Storage, (storage) => storage.camConfig)
-  @JoinColumn({ name: 'idStorage' })
-  storage: Storage;
+  @OneToMany(() => Storage, (storage) => storage.camConfig)
+  storages: Storage[];
+
+  @OneToOne(() => Provider, (provider) => provider.camConfig)
+  provider: Provider;
 
   constructor(camConfig: Partial<CamConfig>) {
     Object.assign(

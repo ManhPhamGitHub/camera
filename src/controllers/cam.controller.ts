@@ -3,14 +3,21 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiDocs, ResponseInterceptor } from '@common';
-import { CamConfigService, CamService, ProviderService } from '@services';
-import { Cam, CamConfig } from '@entities';
+import {
+  CamConfigService,
+  CamService,
+  NotiService,
+  ProviderService,
+  StorageService,
+} from '@services';
+import { Cam, CamConfig, Noti, Provider, Storage } from '@entities';
 @Controller('camera')
-@ApiDocs({ isBearerAuth: true, tag: 'users' })
+@ApiDocs({ isBearerAuth: true, tag: '' })
 @UseInterceptors(new ResponseInterceptor())
 export class UserController {
   private readonly httpService;
@@ -18,6 +25,8 @@ export class UserController {
     private camService: CamService,
     private providerService: ProviderService,
     private camConfig: CamConfigService,
+    private storageService: StorageService,
+    private notiService: NotiService,
   ) {}
 
   @Get('check-connection')
@@ -34,6 +43,7 @@ export class UserController {
       where: { active: true },
       relations: {
         camConfig: true,
+        notis: true,
       },
     });
   }
@@ -47,10 +57,12 @@ export class UserController {
       description: string;
       input: string;
       output: string;
-      provider: string;
+      providerName: string;
+      fileDirection: string;
+      identify: any;
     },
   ) {
-    const cam = this.camService.insert(
+    const cam = await this.camService.insert(
       new Cam({
         ...body,
         active: true,
@@ -58,18 +70,35 @@ export class UserController {
       }),
     );
 
-    const provider = this.providerService.findOne({
-      where: {
-        name: body.provider,
-      },
-    });
-
-    await this.camConfig.insert(
+    const camConfig = await this.camConfig.insert(
       new CamConfig({
         idCam: cam.id,
-        idStorage: provider.id,
         input: body.input,
         output: body.output,
+      }),
+    );
+
+    const provider = await this.providerService.insert(
+      new Provider({
+        name: `${body.providerName}-${body.name}`,
+        providerName: body.providerName,
+        fileDirection: body.fileDirection,
+        identify: body.identify,
+        idCamConfig: camConfig.id,
+      }),
+    );
+  }
+
+  @Put('/:id')
+  async updateCameraNoti(
+    @Body() body: { channel: string; config: string },
+    @Query('id') id: string,
+  ) {
+    const noti = await this.notiService.insert(
+      new Noti({
+        idCam: id,
+        channel: body.channel,
+        config: body.config,
       }),
     );
   }

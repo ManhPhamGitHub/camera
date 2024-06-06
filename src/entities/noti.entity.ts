@@ -1,5 +1,12 @@
 import { Expose, plainToClass } from 'class-transformer';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Cam } from './cam.entity';
 
 @Entity({ name: 'noti' })
@@ -17,8 +24,13 @@ export class Noti {
   @Expose()
   config: any;
 
-  @ManyToMany(() => Cam, (cam) => cam.notis)
-  cams: Cam[];
+  @Column()
+  @Expose()
+  idCam: string;
+
+  @ManyToOne(() => Cam, (c) => c.notis)
+  @JoinColumn({ name: 'idCam' })
+  cam: Cam[];
 
   constructor(noti: Partial<Noti>) {
     Object.assign(

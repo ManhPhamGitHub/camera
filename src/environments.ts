@@ -178,6 +178,11 @@ export const env = convict({
       env: 'FRONTEND_BASE_URL',
     },
   },
+  encryptKey: {
+    format: String,
+    default: 'test',
+    env: 'ENCRYPT_KEY',
+  },
 });
 
 export default env;

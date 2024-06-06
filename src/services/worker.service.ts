@@ -1,13 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { CamService } from '@services';
+import { CamConfigRepository } from '@repositories';
+import { CamConfigService, CamService } from '@services';
 @Injectable()
 export class WorkerService {
-  constructor(private readonly cameraService: CamService) {}
+  constructor(
+    private readonly camConfigRepository: CamConfigRepository,
+    private readonly cameraService: CamService,
+  ) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async handleCron() {
-    const cameraUrl = 'rtsp://rtsp-test-server.viomic.com:554/stream'; // Replace with your RTSP URL
-    await this.cameraService.startStreaming(cameraUrl);
+    const listCamera = await this.camConfigRepository.findAll({
+      where: { [`"cam"."status"`]: 'active' },
+      relations: {
+        cam: true,
+        provider: true,
+      },
+    });
+    // const cameraUrl = 'rtsp://rtsp-test-server.viomic.com:554/stream'; // Replace with your RTSP URL
+    for (const camConfig of listCamera) {
+      await this.cameraService.startStreaming(camConfig);
+    }
   }
 }

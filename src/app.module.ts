@@ -1,7 +1,5 @@
 import 'reflect-metadata';
-import {
-  Module,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { AppController } from './app.controller';
 import { TypeOrmService } from '@configs';
@@ -12,6 +10,8 @@ import * as Repositories from '@repositories';
 import * as Mail from '@mail';
 import { JwtModule } from '@nestjs/jwt';
 import { env } from '@environments';
+import { ScheduleModule } from '@nestjs/schedule';
+import { WorkerModule } from './worker/worker.module';
 
 @Module({
   imports: [
@@ -25,6 +25,8 @@ import { env } from '@environments';
         expiresIn: env.get('jwt.expirationTime'),
       },
     }),
+    ScheduleModule.forRoot(),
+    WorkerModule,
   ],
 
   controllers: [AppController, ...Object.values(Controllers)],

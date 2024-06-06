@@ -33,20 +33,9 @@ export class Storage {
   @Expose()
   link: string;
 
-  @Column()
-  @Expose()
-  idCam: string; // TODO FIX idCamConfig , relation one camConfig - many storage
-
-  @Column()
-  @Expose()
-  idProvider: string;
-
-  @OneToOne(() => CamConfig, (camConfig) => camConfig.storage)
+  @ManyToOne(() => CamConfig, (camConfig) => camConfig.storages)
+  @JoinColumn({ name: 'idCamConfig' })
   camConfig: CamConfig;
-
-  @ManyToOne(() => Provider, (provider) => provider.storages)
-  @JoinColumn({ name: 'idProvider' })
-  provider: Provider;
 
   constructor(storage: Partial<Storage>) {
     Object.assign(

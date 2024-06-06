@@ -31,7 +31,7 @@ export class Cam {
   @Expose()
   startTime: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Expose()
   endTime: string;
 
@@ -44,15 +44,10 @@ export class Cam {
   active: boolean;
 
   @OneToOne(() => CamConfig, (camConfig) => camConfig.cam)
-  @JoinColumn({ name: 'idCam' })
+  // @JoinColumn({ name: 'idCam' })
   camConfig: CamConfig;
 
-  @ManyToMany(() => Noti, (noti) => noti.cams)
-  @JoinTable({
-    name: 'cam_noti',
-    joinColumn: { name: 'idCam', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'idNoti', referencedColumnName: 'id' },
-  })
+  @OneToMany(() => Noti, (noti) => noti.cam)
   notis: Noti[];
 
   constructor(cam: Partial<Cam>) {

@@ -1,4 +1,4 @@
-import { Cam } from '@entities';
+import { Cam, CamConfig } from '@entities';
 import { Injectable } from '@nestjs/common';
 import { CamRepository } from '@repositories';
 import { PassThrough } from 'stream';
@@ -9,6 +9,8 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { promisify } from 'util';
 import { exec } from 'child_process';
+import { decryptStr, encryptStr } from '@utils/authen-helper';
+import { env } from '@environments';
 
 const execAsync = promisify(exec);
 
@@ -32,7 +34,7 @@ export class CamService {
     return this.CamRepository.updateMulti(option, updateData);
   }
 
-  async startStreaming(cameraUrl: string): Promise<void> {
+  async startStreaming(camConfig: CamConfig): Promise<void> {
     const stream = new PassThrough();
     const currentDate = new Date();
 
@@ -41,7 +43,10 @@ export class CamService {
     const day = String(currentDate.getDate()).padStart(2, '0');
     const hours = String(currentDate.getHours()).padStart(2, '0');
     const previousHours = String(currentDate.getHours() - 2).padStart(2, '0');
-    const folderPath = join(__dirname, `../storage/${year}-${month}-${day}`);
+    const folderPath = join(
+      __dirname,
+      `../storage/${camConfig.cam.name}}/${year}-${month}-${day}`,
+    );
 
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
@@ -58,7 +63,7 @@ export class CamService {
     console.log('outputFilePath', outputFilePath);
 
     // Create an ffmpeg process to read from the camera URL
-    const ffmpegCommand = ffmpeg(cameraUrl)
+    const ffmpegCommand = ffmpeg(camConfig.input)
       .inputOptions(['-rtsp_transport tcp'])
       .outputOptions([
         '-c:v libx264',
@@ -76,12 +81,21 @@ export class CamService {
       })
       .on('start', async (commandLine) => {
         console.log('Spawned FFmpeg with command:', commandLine);
-
-        await this.uploadToGoogleCloud(
-          outputFilePathPreviousHour,
-          fileNamePreviousHours,
-          `${year}-${month}-${day}`,
-        );
+        switch (camConfig.provider.name) {
+          case 'google':
+            await this.uploadToGoogleCloud(
+              camConfig,
+              outputFilePathPreviousHour,
+              fileNamePreviousHours,
+              `${year}-${month}-${day}`,
+            );
+            break;
+          case 'cloudinary':
+            await this.uploadToCloudinary(outputFilePathPreviousHour);
+            break;
+          default:
+            break;
+        }
         // Handle Cloudinary upload result as needed
       })
       .on('end', async () => {
@@ -125,15 +139,18 @@ export class CamService {
   }
 
   private async uploadToGoogleCloud(
+    camConfig: CamConfig,
     filePath: string,
     fileName: string,
     folderName: string,
   ) {
     try {
       const storage = new Storage({
-        projectId: 'fir-a5cfe',
-        keyFilename:
-          '/root/manhpham/CameraServices/src/secret/fir-a5cfe-b582bda476a7.json',
+        projectId: JSON.parse(camConfig.provider.config).projectId,
+        credentials: decryptStr(
+          camConfig.provider.identify,
+          env.get('encryptKey'),
+        ),
       });
       console.log('uploadToGoogleCloud progress => ', filePath);
       await fs.promises.access(filePath, fs.constants.F_OK);
