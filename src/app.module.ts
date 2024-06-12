@@ -12,6 +12,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { env } from '@environments';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WorkerModule } from './worker/worker.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -27,6 +29,10 @@ import { WorkerModule } from './worker/worker.module';
     }),
     ScheduleModule.forRoot(),
     WorkerModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '.', 'storage'),
+      serveRoot: '/storage',
+    }),
   ],
 
   controllers: [AppController, ...Object.values(Controllers)],

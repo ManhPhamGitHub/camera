@@ -24,15 +24,15 @@ export class Provider {
   @Expose()
   providerName: string;
 
-  @Column({ type: 'json' })
+  @Column({ type: 'text' })
   @Expose()
   identify: any;
 
-  @Column({ type: 'json' })
+  @Column({ type: 'json', nullable: true })
   @Expose()
   config: any;
 
-  @Column()
+  @Column({ nullable: true })
   @Expose()
   fileDirection: string;
 
@@ -41,7 +41,7 @@ export class Provider {
   idCamConfig: string;
 
   @OneToOne(() => CamConfig, (cc) => cc.provider)
-  @JoinColumn({ name: 'idCamConfig' })
+  @JoinColumn({ name: 'idCamConfig', referencedColumnName: 'id' })
   camConfig: CamConfig;
 
   constructor(provider: Partial<Provider>) {

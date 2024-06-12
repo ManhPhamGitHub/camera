@@ -16,6 +16,7 @@ import {
   StorageService,
 } from '@services';
 import { Cam, CamConfig, Noti, Provider, Storage } from '@entities';
+
 @Controller('camera')
 @ApiDocs({ isBearerAuth: true, tag: '' })
 @UseInterceptors(new ResponseInterceptor())
@@ -83,7 +84,7 @@ export class UserController {
         name: `${body.providerName}-${body.name}`,
         providerName: body.providerName,
         fileDirection: body.fileDirection,
-        identify: body.identify,
+        identify: JSON.stringify(body.identify),
         idCamConfig: camConfig.id,
       }),
     );

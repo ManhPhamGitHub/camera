@@ -45,7 +45,7 @@ export class CamService {
     const previousHours = String(currentDate.getHours() - 2).padStart(2, '0');
     const folderPath = join(
       __dirname,
-      `../storage/${camConfig.cam.name}}/${year}-${month}-${day}`,
+      `../storage/${camConfig.cam.name}/${year}-${month}-${day}`,
     );
 
     if (!fs.existsSync(folderPath)) {
@@ -64,6 +64,7 @@ export class CamService {
       folderPath,
       playlistNamePreviousHours,
     );
+    console.log('S12312321', fileName);
 
     const segmentPath = join(folderPath, segmentFileName);
     // Upload the recorded MP4 file to Cloudinary with the generated filename
@@ -166,10 +167,7 @@ export class CamService {
     try {
       const storage = new Storage({
         projectId: JSON.parse(camConfig.provider.config).projectId,
-        credentials: decryptStr(
-          camConfig.provider.identify,
-          env.get('encryptKey'),
-        ),
+        credentials: JSON.parse(camConfig.provider.identify),
       });
       console.log('uploadToGoogleCloud progress => ', filePath);
       await fs.promises.access(filePath, fs.constants.F_OK);

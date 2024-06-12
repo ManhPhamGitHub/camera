@@ -7,7 +7,9 @@ export class WorkerService {
   constructor(
     private readonly camConfigRepository: CamConfigRepository,
     private readonly cameraService: CamService,
-  ) {}
+  ) {
+    this.handleCron();
+  }
 
   @Cron(CronExpression.EVERY_HOUR)
   async handleCron() {
@@ -18,8 +20,12 @@ export class WorkerService {
         provider: true,
       },
     });
+
     // const cameraUrl = 'rtsp://rtsp-test-server.viomic.com:554/stream'; // Replace with your RTSP URL
     for (const camConfig of listCamera) {
+      if (!camConfig.provider) {
+        throw new Error('Provider not found');
+      }
       await this.cameraService.startStreaming(camConfig);
     }
   }

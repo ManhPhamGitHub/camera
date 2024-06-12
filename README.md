@@ -51,3 +51,11 @@ yarn seed:run
 ```shell
 yarn start
 ```
+
+### Start RTSP LOCAL
+
+docker run --rm -it --network=host bluenviron/mediamtx:latest-ffmpeg
+
+### SEND DATA RECORD TO RTSP LOCAL
+
+ffmpeg -re -stream_loop -1 -i ./src/assets/chillies.mp4 -c copy -f rtsp rtsp://localhost:8554/mystream
