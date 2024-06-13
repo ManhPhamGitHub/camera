@@ -159,8 +159,10 @@ export class CamService {
       });
 
       const bucket = storage.bucket(camConfig.provider.name);
+      console.log('folderPath', folderPath);
 
       const files = fs.readdirSync(folderPath);
+      console.log('files', files);
 
       for (const file of files) {
         const filePath = join(folderPath, file);
@@ -168,6 +170,8 @@ export class CamService {
         await bucket.upload(filePath, {
           destination, // Adjust the destination as needed
         });
+        console.log('filePath => ', filePath);
+
         await fs.unlinkSync(filePath);
         console.log(destination, ' File deleted success =>', filePath);
 
