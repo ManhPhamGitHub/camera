@@ -153,31 +153,26 @@ export class CamService {
     directPath: string,
   ) {
     try {
+      const providerConfig = JSON.parse(camConfig.provider.config);
+
       const storage = new Storage({
         projectId: JSON.parse(camConfig.provider.identify).projectId,
         credentials: JSON.parse(camConfig.provider.identify),
       });
 
-      const bucket = storage.bucket(camConfig.provider.name);
-      console.log('folderPath', folderPath);
-
+      const bucket = storage.bucket(providerConfig.name);
       const files = fs.readdirSync(folderPath);
-      console.log('files', files);
-
       for (const file of files) {
         const filePath = join(folderPath, file);
         const destination = `${directPath}/${file}`;
-        console.log('filePathfilePath', filePath, destination);
 
         await bucket.upload(filePath, {
           destination, // Adjust the destination as needed
         });
-        console.log('filePath => ', filePath);
 
         await fs.unlinkSync(filePath);
         console.log(destination, ' File deleted success =>', filePath);
 
-        const providerConfig = JSON.parse(camConfig.provider.config);
         await this.storageRepository.insert(
           new StorageEntity({
             path: destination,
