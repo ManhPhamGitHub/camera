@@ -90,7 +90,6 @@ export class CamService {
       })
       .on('start', async (commandLine) => {
         console.log('Spawned FFmpeg with command:', commandLine);
-        console.log('camConfig.provider.name => ', camConfig.provider);
 
         switch (camConfig.provider.providerName) {
           case 'google-cloud':
