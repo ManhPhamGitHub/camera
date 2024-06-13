@@ -167,6 +167,8 @@ export class CamService {
       for (const file of files) {
         const filePath = join(folderPath, file);
         const destination = `${directPath}/${file}`;
+        console.log('filePathfilePath', filePath, destination);
+
         await bucket.upload(filePath, {
           destination, // Adjust the destination as needed
         });
