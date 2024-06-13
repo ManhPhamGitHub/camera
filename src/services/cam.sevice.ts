@@ -153,6 +153,11 @@ export class CamService {
     directPath: string,
   ) {
     try {
+      console.log('camConfig.provider.config', camConfig.provider.config);
+      console.log(
+        'JSON.parse(camConfig.provider.config)',
+        JSON.parse(camConfig.provider.config),
+      );
 
       const providerConfig = JSON.parse(camConfig.provider.config);
 
