@@ -96,7 +96,7 @@ export class CamService {
             await this.uploadToGoogleCloud(
               camConfig,
               folderPathPreviousHours,
-              `${year}-${month}-${day}/${previousHours}`,
+              `${camConfig.cam.name}/${year}-${month}-${day}/${previousHours}`,
             );
             break;
           case 'cloudinary':
