@@ -8,7 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Cam } from './cam.entity';
-import { Storage } from './storage.entity';
+import { StorageEntity } from './storage.entity';
 import { Provider } from './provider.entity';
 @Entity({ name: 'cam_config' })
 export class CamConfig {
@@ -33,8 +33,8 @@ export class CamConfig {
   @JoinColumn({ name: 'idCam' })
   cam: Cam;
 
-  @OneToMany(() => Storage, (storage) => storage.camConfig)
-  storages: Storage[];
+  @OneToMany(() => StorageEntity, (storage) => storage.camConfig)
+  storages: StorageEntity[];
 
   @OneToOne(() => Provider, (provider) => provider.camConfig)
   provider: Provider;

@@ -1,6 +1,6 @@
-import { Cam, CamConfig } from '@entities';
+import { Cam, CamConfig, StorageEntity } from '@entities';
 import { Injectable } from '@nestjs/common';
-import { CamRepository } from '@repositories';
+import { CamRepository, StorageRepository } from '@repositories';
 import { PassThrough } from 'stream';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { v2 as Cloudinary } from 'cloudinary';
@@ -16,7 +16,10 @@ const execAsync = promisify(exec);
 
 @Injectable()
 export class CamService {
-  constructor(private CamRepository: CamRepository) {}
+  constructor(
+    private CamRepository: CamRepository,
+    private storageRepository: StorageRepository,
+  ) {}
   findOne(option) {
     return this.CamRepository.findOne(option);
   }
@@ -45,7 +48,11 @@ export class CamService {
     const previousHours = String(currentDate.getHours() - 2).padStart(2, '0');
     const folderPath = join(
       __dirname,
-      `../storage/${camConfig.cam.name}/${year}-${month}-${day}`,
+      `../storage/${camConfig.cam.name}/${year}-${month}-${day}/${hours}`,
+    );
+    const folderPathPreviousHours = join(
+      __dirname,
+      `../storage/${camConfig.cam.name}/${year}-${month}-${day}/${previousHours}`,
     );
 
     if (!fs.existsSync(folderPath)) {
@@ -53,35 +60,17 @@ export class CamService {
     }
 
     const formattedDate = `${year}-${month}-${day}_${hours}`;
-    const fileName = `output_${formattedDate}.mp4`;
     const fileNamePreviousHours = `output_${year}-${month}-${day}_${previousHours}.mp4`;
     const playlistName = `output_${formattedDate}.m3u8`;
-    const playlistNamePreviousHours = `output_${year}-${month}-${day}_${previousHours}.m3u8`;
 
     const segmentFileName = `segment_${formattedDate}_%03d.ts`;
     const playlistPath = join(folderPath, playlistName);
-    const playlistPathPreviousHours = join(
-      folderPath,
-      playlistNamePreviousHours,
-    );
-    console.log('S12312321', fileName);
-
     const segmentPath = join(folderPath, segmentFileName);
-    // Upload the recorded MP4 file to Cloudinary with the generated filename
-    const outputFilePath = join(folderPath, fileName);
     const outputFilePathPreviousHour = join(folderPath, fileNamePreviousHours);
 
     // Create an ffmpeg process to read from the camera URL
     const ffmpegCommand = ffmpeg(camConfig.input)
       .inputOptions(['-rtsp_transport tcp'])
-      // .outputOptions([
-      //   '-c:v libx264',
-      //   '-vf scale=1280:720',
-      //   '-f segment',
-      //   '-segment_time 3600',
-      //   '-reset_timestamps 1',
-      //   '-strftime 1',
-      // ])
       .outputOptions([
         '-c:v libx264',
         '-vf scale=1280:720',
@@ -101,13 +90,14 @@ export class CamService {
       })
       .on('start', async (commandLine) => {
         console.log('Spawned FFmpeg with command:', commandLine);
-        switch (camConfig.provider.name) {
-          case 'google':
+        console.log('camConfig.provider.name => ', camConfig.provider);
+
+        switch (camConfig.provider.providerName) {
+          case 'google-cloud':
             await this.uploadToGoogleCloud(
               camConfig,
-              playlistPathPreviousHours,
-              playlistNamePreviousHours,
-              `${year}-${month}-${day}`,
+              folderPathPreviousHours,
+              `${year}-${month}-${day}/${previousHours}`,
             );
             break;
           case 'cloudinary':
@@ -160,30 +150,39 @@ export class CamService {
 
   private async uploadToGoogleCloud(
     camConfig: CamConfig,
-    filePath: string,
-    fileName: string,
-    folderName: string,
+    folderPath: string,
+    directPath: string,
   ) {
     try {
       const storage = new Storage({
-        projectId: JSON.parse(camConfig.provider.config).projectId,
+        projectId: JSON.parse(camConfig.provider.identify).projectId,
         credentials: JSON.parse(camConfig.provider.identify),
       });
-      console.log('uploadToGoogleCloud progress => ', filePath);
-      await fs.promises.access(filePath, fs.constants.F_OK);
 
-      const bucket = storage.bucket('ducmanhpham');
+      const bucket = storage.bucket(camConfig.provider.name);
 
-      const destination = `${folderName}/${fileName}`;
-      await bucket.upload(filePath, {
-        destination,
-        metadata: {
-          contentType: 'video/mp4',
-        },
-      });
-      console.log(`File uploaded to ${destination}`);
+      const files = fs.readdirSync(folderPath);
 
-      await fs.unlinkSync(filePath);
+      for (const file of files) {
+        const filePath = join(folderPath, file);
+        const destination = `${directPath}/${file}`;
+        await bucket.upload(filePath, {
+          destination, // Adjust the destination as needed
+        });
+        await fs.unlinkSync(filePath);
+        console.log(destination, ' File deleted success =>', filePath);
+
+        const providerConfig = JSON.parse(camConfig.provider.config);
+        await this.storageRepository.insert(
+          new StorageEntity({
+            path: destination,
+            name: file,
+            url: `${providerConfig.link}/${providerConfig.name}`,
+            link: providerConfig.link,
+            idCamConfig: camConfig.id,
+          }),
+        );
+      }
     } catch (err) {
       if (err.code === 'ENOENT') {
         console.error('File does not exist, skipping upload.');

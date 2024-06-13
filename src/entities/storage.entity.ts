@@ -11,7 +11,7 @@ import { CamConfig } from './camConfig.entity';
 import { Provider } from '@entities';
 
 @Entity({ name: 'storage' })
-export class Storage {
+export class StorageEntity {
   @Column({ type: 'uuid' })
   @PrimaryGeneratedColumn('uuid')
   @Expose()
@@ -33,14 +33,18 @@ export class Storage {
   @Expose()
   link: string;
 
+  @Column()
+  @Expose()
+  idCamConfig: string;
+
   @ManyToOne(() => CamConfig, (camConfig) => camConfig.storages)
   @JoinColumn({ name: 'idCamConfig' })
   camConfig: CamConfig;
 
-  constructor(storage: Partial<Storage>) {
+  constructor(storage: Partial<StorageEntity>) {
     Object.assign(
       this,
-      plainToClass(Storage, storage, {
+      plainToClass(StorageEntity, storage, {
         excludeExtraneousValues: true,
       }),
     );

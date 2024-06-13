@@ -7,7 +7,6 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Storage } from './storage.entity';
 import { CamConfig } from './camConfig.entity';
 @Entity({ name: 'provider' })
 export class Provider {

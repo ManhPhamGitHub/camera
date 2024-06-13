@@ -1,4 +1,4 @@
-import { Storage } from '@entities';
+import { StorageEntity } from '@entities';
 import { Injectable } from '@nestjs/common';
 import { StorageRepository } from '@repositories';
 
@@ -11,7 +11,7 @@ export class StorageService {
   findAll(option) {
     return this.storageRepository.findAll(option);
   }
-  insert(data: Storage) {
+  insert(data: StorageEntity) {
     return this.storageRepository.insert(data);
   }
   update(id: number | string, updateData: any) {

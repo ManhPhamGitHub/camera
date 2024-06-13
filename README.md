@@ -54,7 +54,10 @@ yarn start
 
 ### Start RTSP LOCAL
 
-docker run --rm -it --network=host bluenviron/mediamtx:latest-ffmpeg
+docker run --rm -it \
+-e MTX_PROTOCOLS=tcp \
+-p 8554:8554 \
+bluenviron/mediamtx:latest-ffmpeg
 
 ### SEND DATA RECORD TO RTSP LOCAL
 

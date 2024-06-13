@@ -15,7 +15,7 @@ import {
   ProviderService,
   StorageService,
 } from '@services';
-import { Cam, CamConfig, Noti, Provider, Storage } from '@entities';
+import { Cam, CamConfig, Noti, Provider, StorageEntity } from '@entities';
 
 @Controller('camera')
 @ApiDocs({ isBearerAuth: true, tag: '' })
@@ -61,6 +61,7 @@ export class UserController {
       providerName: string;
       fileDirection: string;
       identify: any;
+      config: any;
     },
   ) {
     const cam = await this.camService.insert(
@@ -86,6 +87,7 @@ export class UserController {
         fileDirection: body.fileDirection,
         identify: JSON.stringify(body.identify),
         idCamConfig: camConfig.id,
+        config: JSON.stringify(body.config),
       }),
     );
   }
@@ -102,5 +104,17 @@ export class UserController {
         config: body.config,
       }),
     );
+  }
+
+  @Get('/config')
+  async getCamStorage(@Query('id') id: string) {
+    return await this.camConfig.findAll({
+      where: { idCam: id },
+      relations: {
+        // provider: true,
+        storages: true,
+        cam: true,
+      },
+    });
   }
 }

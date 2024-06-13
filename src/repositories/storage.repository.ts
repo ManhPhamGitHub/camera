@@ -1,12 +1,12 @@
-import { Storage } from '@entities';
+import { StorageEntity } from '@entities';
 import { DataSource, ILike, Between } from 'typeorm';
 import { AbstractMysqlRepository } from './base.repository';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class StorageRepository extends AbstractMysqlRepository<Storage> {
+export class StorageRepository extends AbstractMysqlRepository<StorageEntity> {
   constructor(private dataSource: DataSource) {
-    super(dataSource.getRepository(Storage));
+    super(dataSource.getRepository(StorageEntity));
   }
   mapOptionsQuery(
     namespace: string,
