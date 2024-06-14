@@ -75,10 +75,11 @@ export class CamService {
         '-c:v libx264',
         '-vf scale=1280:720',
         '-f hls',
-        '-hls_time 2',
-        '-hls_list_size 5',
+        '-hls_time 10', // Set each segment to 10 seconds
+        '-hls_list_size 0', // Keep all segments in the playlist
         '-hls_flags delete_segments',
         `-hls_segment_filename ${segmentPath}`,
+        '-t 3600', // Set the total duration to 1 hour (3600 seconds)
       ])
       .output(playlistPath)
 
