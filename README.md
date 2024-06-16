@@ -62,3 +62,5 @@ bluenviron/mediamtx:latest-ffmpeg
 ### SEND DATA RECORD TO RTSP LOCAL
 
 ffmpeg -re -stream_loop -1 -i ./src/assets/chillies.mp4 -c copy -f rtsp rtsp://localhost:8554/mystream
+
+pm2 start npm --name "cam-service" -- run "start:dev"
