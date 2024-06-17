@@ -33,9 +33,9 @@ export class UserController {
   @Get('check-connection')
   async checkConnection(
     @Query('url') url: string,
-  ): Promise<{ success: boolean }> {
+  ): Promise<{ status: boolean }> {
     const success = await this.camService.checkRtspConnection(url);
-    return { success };
+    return { status: success };
   }
 
   @Get('')

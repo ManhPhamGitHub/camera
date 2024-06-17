@@ -171,18 +171,20 @@ export class CamService {
           destination, // Adjust the destination as needed
         });
 
+        if (file.includes('.m3u8')) {
+          await this.storageRepository.insert(
+            new StorageEntity({
+              path: destination,
+              name: file,
+              url: `${providerConfig.link}/${providerConfig.name}`,
+              link: providerConfig.link,
+              idCamConfig: camConfig.id,
+            }),
+          );
+        }
+
         await fs.unlinkSync(filePath);
         console.log(destination, ' File deleted success =>', filePath);
-
-        await this.storageRepository.insert(
-          new StorageEntity({
-            path: destination,
-            name: file,
-            url: `${providerConfig.link}/${providerConfig.name}`,
-            link: providerConfig.link,
-            idCamConfig: camConfig.id,
-          }),
-        );
       }
     } catch (err) {
       if (err.code === 'ENOENT') {
