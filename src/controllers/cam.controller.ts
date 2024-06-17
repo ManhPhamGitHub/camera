@@ -111,7 +111,7 @@ export class UserController {
     return await this.camConfig.findAll({
       where: { idCam: id },
       relations: {
-        // provider: true,
+        provider: true,
         storages: true,
         cam: true,
       },
