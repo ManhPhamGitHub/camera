@@ -98,7 +98,7 @@ export class UserController {
 
       const existProvider = await this.providerService.findOne({
         where: {
-          idCamConfig: existCamConfig.provider.id,
+          id: existCamConfig.provider.id,
         },
       });
       const providerPayload = {
