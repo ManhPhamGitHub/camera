@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import {
   CamConfigRepository,
   CamRepository,
+  NotiRepository,
   StorageRepository,
 } from '@repositories';
 import { CamService } from '@services';
@@ -14,6 +15,7 @@ import { WorkerService } from 'src/services/worker.service';
     CamConfigRepository,
     CamRepository,
     StorageRepository,
+    NotiRepository,
   ],
   controllers: [],
 })
