@@ -57,7 +57,7 @@ export class UserController {
       id?: string;
       name?: string;
       ipAddress?: string;
-      description: string;
+      description?: string;
       input?: string;
       output?: string;
       providerName?: string;
