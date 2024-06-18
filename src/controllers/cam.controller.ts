@@ -110,6 +110,15 @@ export class UserController {
       if (body.identify) {
         providerPayload['identify'] = JSON.stringify(body.identify);
       }
+      console.log('providerPayload', providerPayload);
+
+      console.log('existProvider,', existProvider);
+
+      console.log(22, {
+        ...existProvider,
+        ...providerPayload,
+      });
+
       await this.providerService.insert({
         ...existProvider,
         ...providerPayload,
