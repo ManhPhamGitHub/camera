@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -157,12 +158,21 @@ export class UserController {
 
   @Put('/:id')
   async updateCameraNoti(
-    @Body() body: { channel: string; config: string },
-    @Query('id') id: string,
+    @Body() body: { channel: string; config: string; idCam: string },
+    @Param('id') id: string,
   ) {
+    const existNoti = await this.notiService.findOne({
+      where: {
+        idCam: body.idCam,
+        channel: body.channel,
+      },
+    });
+    if (existNoti) {
+      throw new Error('Noti already exist');
+    }
     const noti = await this.notiService.insert(
       new Noti({
-        idCam: id,
+        idCam: body.idCam,
         channel: body.channel,
         config: body.config,
       }),
