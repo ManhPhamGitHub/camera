@@ -11,6 +11,7 @@ import { promisify } from 'util';
 import { exec } from 'child_process';
 import { decryptStr, encryptStr } from '@utils/authen-helper';
 import { env } from '@environments';
+import { BaseService } from './base.service';
 
 const execAsync = promisify(exec);
 
@@ -155,11 +156,12 @@ export class CamService {
   ) {
     try {
       const providerConfig = camConfig.provider.config;
-
+      const notiConfig = camConfig.cam.notis[0].config;
       const storage = new Storage({
         projectId: JSON.parse(camConfig.provider.identify).projectId,
         credentials: JSON.parse(camConfig.provider.identify),
       });
+      console.log('notiConfig', notiConfig);
 
       const bucket = storage.bucket(providerConfig.name);
       const files = fs.readdirSync(folderPath);
@@ -181,6 +183,13 @@ export class CamService {
               idCamConfig: camConfig.id,
             }),
           );
+
+          const baseService = new BaseService(notiConfig.link);
+
+          baseService.post('', {
+            content: `File ${file} uploaded success to bucket : ${bucket} 
+            link: <a href="${providerConfig.link}/${providerConfig.name}">here</a> `,
+          });
         }
 
         await fs.unlinkSync(filePath);
