@@ -53,6 +53,7 @@ export class UserController {
   async createCamera(
     @Body()
     body: {
+      id: string;
       name: string;
       ipAddress: string;
       description: string;
@@ -64,32 +65,79 @@ export class UserController {
       config: any;
     },
   ) {
-    const cam = await this.camService.insert(
-      new Cam({
-        ...body,
-        active: true,
-        startTime: new Date().toISOString(),
-      }),
-    );
+    if (body.id) {
+      const cam = await this.camService.insert(
+        new Cam({
+          ...body,
+          active: true,
+          startTime: new Date().toISOString(),
+        }),
+      );
 
-    const camConfig = await this.camConfig.insert(
-      new CamConfig({
-        idCam: cam.id,
+      const camConfig = await this.camConfig.insert(
+        new CamConfig({
+          idCam: cam.id,
+          input: body.input,
+          output: body.output,
+        }),
+      );
+
+      const provider = await this.providerService.insert(
+        new Provider({
+          name: `${body.providerName}-${body.name}`,
+          providerName: body.providerName,
+          fileDirection: body.fileDirection,
+          identify: JSON.stringify(body.identify),
+          idCamConfig: camConfig.id,
+          config: JSON.stringify(body.config),
+        }),
+      );
+    } else {
+      const existCamConfig = await this.camConfig.findOne({
+        where: {
+          id: body.id,
+        },
+        relations: {
+          provider: true,
+        },
+      });
+
+      if (!existCamConfig) {
+        throw new Error('Cam Config not found');
+      }
+      await this.camConfig.insert({
+        ...existCamConfig,
         input: body.input,
         output: body.output,
-      }),
-    );
+      });
 
-    const provider = await this.providerService.insert(
-      new Provider({
+      const existCam = await this.camService.findOne({
+        where: {
+          id: existCamConfig.idCam,
+        },
+      });
+
+      await this.camService.insert({
+        ...existCam,
+        name: body.name,
+        description: body.description,
+      });
+
+      const existProvider = await this.providerService.findOne({
+        where: {
+          idCamConfig: existCamConfig.provider.id,
+        },
+      });
+
+      await this.providerService.insert({
+        ...existProvider,
         name: `${body.providerName}-${body.name}`,
         providerName: body.providerName,
         fileDirection: body.fileDirection,
         identify: JSON.stringify(body.identify),
-        idCamConfig: camConfig.id,
         config: JSON.stringify(body.config),
-      }),
-    );
+      });
+    }
   }
 
   @Put('/:id')
