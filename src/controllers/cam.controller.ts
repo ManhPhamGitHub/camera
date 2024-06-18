@@ -66,33 +66,6 @@ export class UserController {
     },
   ) {
     if (body.id) {
-      const cam = await this.camService.insert(
-        new Cam({
-          ...body,
-          active: true,
-          startTime: new Date().toISOString(),
-        }),
-      );
-
-      const camConfig = await this.camConfig.insert(
-        new CamConfig({
-          idCam: cam.id,
-          input: body.input,
-          output: body.output,
-        }),
-      );
-
-      const provider = await this.providerService.insert(
-        new Provider({
-          name: `${body.providerName}-${body.name}`,
-          providerName: body.providerName,
-          fileDirection: body.fileDirection,
-          identify: JSON.stringify(body.identify),
-          idCamConfig: camConfig.id,
-          config: JSON.stringify(body.config),
-        }),
-      );
-    } else {
       const existCamConfig = await this.camConfig.findOne({
         where: {
           id: body.id,
@@ -141,6 +114,35 @@ export class UserController {
         ...existProvider,
         ...providerPayload,
       });
+    } else {
+      {
+        const cam = await this.camService.insert(
+          new Cam({
+            ...body,
+            active: true,
+            startTime: new Date().toISOString(),
+          }),
+        );
+
+        const camConfig = await this.camConfig.insert(
+          new CamConfig({
+            idCam: cam.id,
+            input: body.input,
+            output: body.output,
+          }),
+        );
+
+        const provider = await this.providerService.insert(
+          new Provider({
+            name: `${body.providerName}-${body.name}`,
+            providerName: body.providerName,
+            fileDirection: body.fileDirection,
+            identify: JSON.stringify(body.identify),
+            idCamConfig: camConfig.id,
+            config: JSON.stringify(body.config),
+          }),
+        );
+      }
     }
   }
 
