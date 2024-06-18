@@ -24,7 +24,8 @@ export class WorkerService {
     // const cameraUrl = 'rtsp://rtsp-test-server.viomic.com:554/stream'; // Replace with your RTSP URL
     for (const camConfig of listCamera) {
       if (!camConfig.provider) {
-        throw new Error('Provider not found');
+        console.log('Provider not found');
+        return;
       }
       await this.cameraService.startStreaming(camConfig);
     }
