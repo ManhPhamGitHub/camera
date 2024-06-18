@@ -171,7 +171,7 @@ export class UserController {
 
   @Get('/config')
   async getCamStorage(@Query('id') id: string) {
-    return await this.camConfig.findAll({
+    const camConfigs = await this.camConfig.findAll({
       where: { idCam: id },
       relations: {
         provider: true,
@@ -179,5 +179,19 @@ export class UserController {
         cam: true,
       },
     });
+    return Promise.all(
+      camConfigs.map(async (camConfig) => {
+        const notis = await this.notiService.findAll({
+          where: {
+            idCam: camConfig.idCam,
+          },
+        });
+        delete camConfig.provider.identify;
+        return {
+          ...camConfig,
+          notis,
+        };
+      }),
+    );
   }
 }
