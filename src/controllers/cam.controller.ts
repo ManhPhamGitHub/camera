@@ -53,16 +53,16 @@ export class UserController {
   async createCamera(
     @Body()
     body: {
-      id: string;
-      name: string;
-      ipAddress: string;
+      id?: string;
+      name?: string;
+      ipAddress?: string;
       description: string;
-      input: string;
-      output: string;
-      providerName: string;
-      fileDirection: string;
-      identify: any;
-      config: any;
+      input?: string;
+      output?: string;
+      providerName?: string;
+      fileDirection?: string;
+      identify?: any;
+      config?: any;
     },
   ) {
     if (body.id) {
@@ -128,14 +128,18 @@ export class UserController {
           idCamConfig: existCamConfig.provider.id,
         },
       });
-
-      await this.providerService.insert({
-        ...existProvider,
+      const providerPayload = {
         name: `${body.providerName}-${body.name}`,
         providerName: body.providerName,
         fileDirection: body.fileDirection,
-        identify: JSON.stringify(body.identify),
-        config: JSON.stringify(body.config),
+        config: body.config,
+      };
+      if (body.identify) {
+        providerPayload['identify'] = JSON.stringify(body.identify);
+      }
+      await this.providerService.insert({
+        ...existProvider,
+        ...providerPayload,
       });
     }
   }
