@@ -99,7 +99,7 @@ export class CamService {
         console.log('Spawned FFmpeg with command:', commandLine);
 
         switch (camConfig.provider.providerName) {
-          case 'google-cloud':
+          case 'google':
             await this.uploadToGoogleCloud(
               camConfig,
               folderPathPreviousHours,
