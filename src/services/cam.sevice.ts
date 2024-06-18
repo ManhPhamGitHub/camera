@@ -1,6 +1,10 @@
 import { Cam, CamConfig, StorageEntity } from '@entities';
 import { Injectable } from '@nestjs/common';
-import { CamRepository, StorageRepository } from '@repositories';
+import {
+  CamRepository,
+  NotiRepository,
+  StorageRepository,
+} from '@repositories';
 import { PassThrough } from 'stream';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { v2 as Cloudinary } from 'cloudinary';
@@ -20,6 +24,7 @@ export class CamService {
   constructor(
     private CamRepository: CamRepository,
     private storageRepository: StorageRepository,
+    private notificationRepository: NotiRepository,
   ) {}
   findOne(option) {
     return this.CamRepository.findOne(option);
@@ -156,14 +161,11 @@ export class CamService {
   ) {
     try {
       const providerConfig = camConfig.provider.config;
-      const notiConfig = camConfig.cam.notis.length
-        ? camConfig.cam.notis[0].config
-        : null;
+
       const storage = new Storage({
         projectId: JSON.parse(camConfig.provider.identify).projectId,
         credentials: JSON.parse(camConfig.provider.identify),
       });
-      console.log('notiConfig', notiConfig);
 
       const bucket = storage.bucket(providerConfig.name);
       const files = fs.readdirSync(folderPath);
@@ -185,8 +187,14 @@ export class CamService {
               idCamConfig: camConfig.id,
             }),
           );
-          if (notiConfig) {
-            const baseService = new BaseService(notiConfig.link);
+          const existNoti = await this.notificationRepository.findOne({
+            where: {
+              idCam: camConfig.cam.id,
+              channel: 'discord',
+            },
+          });
+          if (existNoti) {
+            const baseService = new BaseService(existNoti.config.link);
 
             baseService.post('', {
               content: `File ${file} uploaded success to bucket : ${bucket} 
