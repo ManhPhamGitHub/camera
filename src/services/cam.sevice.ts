@@ -187,12 +187,14 @@ export class CamService {
               idCamConfig: camConfig.id,
             }),
           );
+
           const existNoti = await this.notificationRepository.findOne({
             where: {
               idCam: camConfig.cam.id,
               channel: 'discord',
             },
           });
+          console.log('existNoti,existNoti', existNoti);
           if (existNoti) {
             const baseService = new BaseService(existNoti.config.link);
 
