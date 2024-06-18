@@ -199,8 +199,8 @@ export class CamService {
             const baseService = new BaseService(existNoti.config.link);
 
             baseService.post('', {
-              content: `File ${file} uploaded success to bucket : ${bucket} 
-            link: <a href="${providerConfig.link}/${providerConfig.name}">here</a> `,
+              content: `File ${file} uploaded success to bucket : ${bucket.name} 
+            link: ${providerConfig.link}/${providerConfig.name}/${destination}`,
             });
           }
         }
