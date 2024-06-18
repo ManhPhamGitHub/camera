@@ -156,7 +156,9 @@ export class CamService {
   ) {
     try {
       const providerConfig = camConfig.provider.config;
-      const notiConfig = camConfig.cam.notis[0].config;
+      const notiConfig = camConfig.cam.notis.length
+        ? camConfig.cam.notis[0].config
+        : null;
       const storage = new Storage({
         projectId: JSON.parse(camConfig.provider.identify).projectId,
         credentials: JSON.parse(camConfig.provider.identify),
@@ -183,13 +185,14 @@ export class CamService {
               idCamConfig: camConfig.id,
             }),
           );
+          if (notiConfig) {
+            const baseService = new BaseService(notiConfig.link);
 
-          const baseService = new BaseService(notiConfig.link);
-
-          baseService.post('', {
-            content: `File ${file} uploaded success to bucket : ${bucket} 
+            baseService.post('', {
+              content: `File ${file} uploaded success to bucket : ${bucket} 
             link: <a href="${providerConfig.link}/${providerConfig.name}">here</a> `,
-          });
+            });
+          }
         }
 
         await fs.unlinkSync(filePath);
