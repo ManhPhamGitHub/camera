@@ -29,6 +29,14 @@ export class CamConfig {
   @Expose()
   output: string;
 
+  @Column({ default: '720p' })
+  @Expose()
+  resolution: string;
+
+  @Column({ default: '23' })
+  @Expose()
+  crf: string;
+
   @OneToOne(() => Cam, (cam) => cam.camConfig)
   @JoinColumn({ name: 'idCam' })
   cam: Cam;

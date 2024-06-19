@@ -16,6 +16,7 @@ import { exec } from 'child_process';
 import { decryptStr, encryptStr } from '@utils/authen-helper';
 import { env } from '@environments';
 import { BaseService } from './base.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 const execAsync = promisify(exec);
 
@@ -25,7 +26,8 @@ export class CamService {
     private CamRepository: CamRepository,
     private storageRepository: StorageRepository,
     private notificationRepository: NotiRepository,
-  ) {}
+  ) // private readonly mailerService: MailerService,
+  {}
   findOne(option) {
     return this.CamRepository.findOne(option);
   }
@@ -46,6 +48,7 @@ export class CamService {
   async startStreaming(camConfig: CamConfig): Promise<void> {
     const stream = new PassThrough();
     const currentDate = new Date();
+    let scaleOption;
 
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Adding 1 because months are zero-based
@@ -73,13 +76,26 @@ export class CamService {
     const playlistPath = join(folderPath, playlistName);
     const segmentPath = join(folderPath, segmentFileName);
     const outputFilePathPreviousHour = join(folderPath, fileNamePreviousHours);
-
+    switch (camConfig.resolution) {
+      case '720p':
+        scaleOption = '-vf scale=1280:720';
+        break;
+      case '1080p':
+        scaleOption = '-vf scale=1920:1080';
+        break;
+      case '1440p':
+        scaleOption = '-vf scale=2560:1440';
+        break;
+      default:
+        throw new Error('Unsupported resolution');
+    }
     // Create an ffmpeg process to read from the camera URL
     const ffmpegCommand = ffmpeg(camConfig.input)
       .inputOptions(['-rtsp_transport tcp'])
       .outputOptions([
-        '-c:v libx264',
-        '-vf scale=1280:720',
+        '-c:v libx264', //  H.264 codec
+        scaleOption,
+        `-crf ${camConfig.crf}`,
         '-f hls',
         '-hls_time 10', // Set each segment to 10 seconds
         '-hls_list_size 0', // Keep all segments in the playlist

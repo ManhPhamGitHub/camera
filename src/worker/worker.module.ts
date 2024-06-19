@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import {
   CamConfigRepository,
@@ -16,6 +17,7 @@ import { WorkerService } from 'src/services/worker.service';
     CamRepository,
     StorageRepository,
     NotiRepository,
+    // MailerService,
   ],
   controllers: [],
 })

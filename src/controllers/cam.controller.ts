@@ -64,6 +64,8 @@ export class UserController {
       fileDirection?: string;
       identify?: any;
       config?: any;
+      resolution?: string;
+      crf?: string;
     },
   ) {
     if (body.id) {
@@ -83,6 +85,8 @@ export class UserController {
         ...existCamConfig,
         input: body.input,
         output: body.output,
+        crf: body.crf,
+        resolution: body.resolution,
       });
 
       const existCam = await this.camService.findOne({
