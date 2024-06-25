@@ -52,13 +52,13 @@ export class Cam {
   @OneToMany(() => Noti, (noti) => noti.cam)
   notis: Noti[];
 
-  @CreateDateColumn()
-  @Expose()
-  createdAt: Date;
+  // @CreateDateColumn()
+  // @Expose()
+  // createdAt: Date;
 
-  @UpdateDateColumn()
-  @Expose()
-  updatedAt: Date;
+  // @UpdateDateColumn()
+  // @Expose()
+  // updatedAt: Date;
 
   constructor(cam: Partial<Cam>) {
     Object.assign(

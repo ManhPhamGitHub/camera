@@ -17,6 +17,7 @@ import {
   StorageService,
 } from '@services';
 import { Cam, CamConfig, Noti, Provider, StorageEntity } from '@entities';
+import { BaseService } from '../services/base.service';
 
 @Controller('camera')
 @ApiDocs({ isBearerAuth: true, tag: '' })
@@ -207,5 +208,21 @@ export class UserController {
         };
       }),
     );
+  }
+
+  @Get('/callback')
+  async CallbackTest(@Query('code') code: string) {
+    const CLIENT_ID = 'Ov23libjpBs67j1mlcJy';
+    const CLIENT_SECRET = '9d10d4e8a62f1a7ba7ea80f87f3097bfab761021';
+    const baseService = new BaseService(
+      'https://github.com/login/oauth/access_token',
+    );
+    const accessToken = await baseService.post('', {
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      code: code,
+    });
+
+    console.log('accessToken', accessToken);
   }
 }
