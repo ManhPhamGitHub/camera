@@ -16,8 +16,7 @@ import { exec } from 'child_process';
 import { decryptStr, encryptStr } from '@utils/authen-helper';
 import { env } from '@environments';
 import { BaseService } from './base.service';
-import { MailerService } from '@nestjs-modules/mailer';
-
+import nodemailer from 'nodemailer';
 const execAsync = promisify(exec);
 
 @Injectable()
@@ -25,9 +24,8 @@ export class CamService {
   constructor(
     private CamRepository: CamRepository,
     private storageRepository: StorageRepository,
-    private notificationRepository: NotiRepository,
-  ) // private readonly mailerService: MailerService,
-  {}
+    private notificationRepository: NotiRepository, // private readonly mailerService: MailerService,
+  ) {}
   findOne(option) {
     return this.CamRepository.findOne(option);
   }
@@ -44,6 +42,33 @@ export class CamService {
   updateMulti(option: any, updateData: any) {
     return this.CamRepository.updateMulti(option, updateData);
   }
+
+  handleSendMail = async (config: any, content: any) => {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.google.email',
+      port: 587,
+      secure: false, // Use `true` for port 465, `false` for all other ports
+      auth: {
+        user: env.get('mail.nodemailerUser'),
+        pass: env.get('mail.nodemailerPass'),
+      },
+    });
+
+    const mailOptions = {
+      from: env.get('mail.nodemailerUser'),
+      to: config.link,
+      subject: 'Camera Service upload file success',
+      text: 'Camera Service upload file success',
+      html: content,
+    };
+
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent: ' + info.response);
+    } catch (error) {
+      console.error('Error sending email: ', error);
+    }
+  };
 
   async startStreaming(camConfig: CamConfig): Promise<void> {
     const stream = new PassThrough();
@@ -204,20 +229,32 @@ export class CamService {
             }),
           );
 
-          const existNoti = await this.notificationRepository.findOne({
+          const existNotiDiscord = await this.notificationRepository.findOne({
             where: {
               idCam: camConfig.cam.id,
               channel: 'discord',
             },
           });
-          console.log('existNoti,existNoti', existNoti);
-          if (existNoti) {
-            const baseService = new BaseService(existNoti.config.link);
+          let content = `File ${file} uploaded success to bucket : ${bucket.name} 
+          link: ${providerConfig.link}/${providerConfig.name}/${destination}`;
+
+          if (existNotiDiscord) {
+            const baseService = new BaseService(existNotiDiscord.config.link);
 
             baseService.post('', {
-              content: `File ${file} uploaded success to bucket : ${bucket.name} 
-            link: ${providerConfig.link}/${providerConfig.name}/${destination}`,
+              content,
             });
+          }
+
+          const existNotiEmail = await this.notificationRepository.findOne({
+            where: {
+              idCam: camConfig.cam.id,
+              channel: 'email',
+            },
+          });
+
+          if (existNotiEmail) {
+            await this.handleSendMail(existNotiEmail.config, content);
           }
         }
 

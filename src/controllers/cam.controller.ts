@@ -163,7 +163,7 @@ export class UserController {
 
   @Put('/:id')
   async updateCameraNoti(
-    @Body() body: { channel: string; config: string; idCam: string },
+    @Body() body: { channel: string; config: any; idCam: string },
     @Param('id') id: string,
   ) {
     const existNoti = await this.notiService.findOne({
