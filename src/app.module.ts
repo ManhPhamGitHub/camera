@@ -7,13 +7,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Services from '@services';
 import * as Controllers from '@controllers';
 import * as Repositories from '@repositories';
-import * as Mail from '@mail';
 import { JwtModule } from '@nestjs/jwt';
 import { env } from '@environments';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WorkerModule } from './worker/worker.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+// import { MailModule } from './mail/mailer.module';
 
 @Module({
   imports: [
@@ -28,18 +28,15 @@ import { join } from 'path';
       },
     }),
     ScheduleModule.forRoot(),
-    WorkerModule,
+    // MailModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '.', 'storage'),
       serveRoot: '/storage',
     }),
+    WorkerModule,
   ],
 
   controllers: [AppController, ...Object.values(Controllers)],
-  providers: [
-    ...Object.values(Repositories),
-    ...Object.values(Services),
-    ...Object.values(Mail),
-  ],
+  providers: [...Object.values(Repositories), ...Object.values(Services)],
 })
 export class AppModule {}

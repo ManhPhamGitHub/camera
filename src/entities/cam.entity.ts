@@ -8,6 +8,8 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { CamConfig } from './camConfig.entity';
 import { Noti } from './noti.entity';
@@ -49,6 +51,14 @@ export class Cam {
 
   @OneToMany(() => Noti, (noti) => noti.cam)
   notis: Noti[];
+
+  // @CreateDateColumn()
+  // @Expose()
+  // createdAt: Date;
+
+  // @UpdateDateColumn()
+  // @Expose()
+  // updatedAt: Date;
 
   constructor(cam: Partial<Cam>) {
     Object.assign(

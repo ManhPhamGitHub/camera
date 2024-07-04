@@ -25,7 +25,8 @@ export class WorkerService {
 
     for (const camConfig of listCamera) {
       if (!camConfig.provider) {
-        throw new Error('Provider not found');
+        console.log('Provider not found');
+        return;
       }
       await this.cameraService.startStreaming(camConfig);
     }

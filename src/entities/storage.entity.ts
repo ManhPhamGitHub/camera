@@ -6,6 +6,8 @@ import {
   JoinColumn,
   ManyToOne,
   OneToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { CamConfig } from './camConfig.entity';
 import { Provider } from '@entities';
@@ -40,6 +42,14 @@ export class StorageEntity {
   @ManyToOne(() => CamConfig, (camConfig) => camConfig.storages)
   @JoinColumn({ name: 'idCamConfig' })
   camConfig: CamConfig;
+
+  @CreateDateColumn()
+  @Expose()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  @Expose()
+  updatedAt: Date;
 
   constructor(storage: Partial<StorageEntity>) {
     Object.assign(

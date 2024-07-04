@@ -1,6 +1,10 @@
 import { Cam, CamConfig, StorageEntity } from '@entities';
 import { Injectable } from '@nestjs/common';
-import { CamRepository, StorageRepository } from '@repositories';
+import {
+  CamRepository,
+  NotiRepository,
+  StorageRepository,
+} from '@repositories';
 import { PassThrough } from 'stream';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { v2 as Cloudinary } from 'cloudinary';
@@ -11,7 +15,8 @@ import { promisify } from 'util';
 import { exec } from 'child_process';
 import { decryptStr, encryptStr } from '@utils/authen-helper';
 import { env } from '@environments';
-
+import { BaseService } from './base.service';
+import nodemailer from 'nodemailer';
 const execAsync = promisify(exec);
 
 @Injectable()
@@ -19,6 +24,7 @@ export class CamService {
   constructor(
     private CamRepository: CamRepository,
     private storageRepository: StorageRepository,
+    private notificationRepository: NotiRepository, // private readonly mailerService: MailerService,
   ) {}
   findOne(option) {
     return this.CamRepository.findOne(option);
@@ -37,9 +43,37 @@ export class CamService {
     return this.CamRepository.updateMulti(option, updateData);
   }
 
+  handleSendMail = async (config: any, content: any) => {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.google.email',
+      port: 587,
+      secure: false, // Use `true` for port 465, `false` for all other ports
+      auth: {
+        user: env.get('mail.nodemailerUser'),
+        pass: env.get('mail.nodemailerPass'),
+      },
+    });
+
+    const mailOptions = {
+      from: env.get('mail.nodemailerUser'),
+      to: config.link,
+      subject: 'Camera Service upload file success',
+      text: 'Camera Service upload file success',
+      html: content,
+    };
+
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent: ' + info.response);
+    } catch (error) {
+      console.error('Error sending email: ', error);
+    }
+  };
+
   async startStreaming(camConfig: CamConfig): Promise<void> {
     const stream = new PassThrough();
     const currentDate = new Date();
+    let scaleOption;
 
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Adding 1 because months are zero-based
@@ -67,13 +101,26 @@ export class CamService {
     const playlistPath = join(folderPath, playlistName);
     const segmentPath = join(folderPath, segmentFileName);
     const outputFilePathPreviousHour = join(folderPath, fileNamePreviousHours);
-
+    switch (camConfig.resolution) {
+      case '720p':
+        scaleOption = '-vf scale=1280:720';
+        break;
+      case '1080p':
+        scaleOption = '-vf scale=1920:1080';
+        break;
+      case '1440p':
+        scaleOption = '-vf scale=2560:1440';
+        break;
+      default:
+        throw new Error('Unsupported resolution');
+    }
     // Create an ffmpeg process to read from the camera URL
     const ffmpegCommand = ffmpeg(camConfig.input)
       .inputOptions(['-rtsp_transport tcp'])
       .outputOptions([
-        '-c:v libx264',
-        '-vf scale=1280:720',
+        '-c:v libx264', //  H.264 codec
+        scaleOption,
+        `-crf ${camConfig.crf}`,
         '-f hls',
         '-hls_time 10', // Set each segment to 10 seconds
         '-hls_list_size 0', // Keep all segments in the playlist
@@ -181,6 +228,34 @@ export class CamService {
               idCamConfig: camConfig.id,
             }),
           );
+
+          const existNotiDiscord = await this.notificationRepository.findOne({
+            where: {
+              idCam: camConfig.cam.id,
+              channel: 'discord',
+            },
+          });
+          let content = `File ${file} uploaded success to bucket : ${bucket.name} 
+          link: ${providerConfig.link}/${providerConfig.name}/${destination}`;
+
+          if (existNotiDiscord) {
+            const baseService = new BaseService(existNotiDiscord.config.link);
+
+            baseService.post('', {
+              content,
+            });
+          }
+
+          const existNotiEmail = await this.notificationRepository.findOne({
+            where: {
+              idCam: camConfig.cam.id,
+              channel: 'email',
+            },
+          });
+
+          if (existNotiEmail) {
+            await this.handleSendMail(existNotiEmail.config, content);
+          }
         }
 
         await fs.unlinkSync(filePath);
