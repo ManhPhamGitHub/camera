@@ -15,7 +15,9 @@ export class WorkerService {
   async handleCron() {
     const listCamera = await this.camConfigRepository.findAll({
       where: {
-        active: true,
+        cam: {
+          active: true,
+        },
       },
       relations: {
         cam: true,
