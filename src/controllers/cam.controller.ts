@@ -201,7 +201,7 @@ export class UserController {
             idCam: camConfig.idCam,
           },
         });
-        delete camConfig.provider.identify;
+        if (camConfig.provider?.identify) delete camConfig.provider.identify;
         return {
           ...camConfig,
           notis,
