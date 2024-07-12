@@ -223,6 +223,7 @@ export class UserController {
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
       code: code,
+      grant_type: 'authorization_code',
     });
     console.log('response', response);
 
