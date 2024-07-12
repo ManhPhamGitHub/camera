@@ -224,6 +224,7 @@ export class UserController {
       client_secret: CLIENT_SECRET,
       code: code,
     });
+    console.log('response', response);
 
     return { code, accessToken: response.data };
   }
