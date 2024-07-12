@@ -219,7 +219,7 @@ export class UserController {
     const baseService = new BaseService(
       'https://github.com/login/oauth/access_token',
     );
-    const response = await baseService.post('', {
+    const response: any = await baseService.post('', {
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
       code: code,
