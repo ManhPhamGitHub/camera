@@ -129,12 +129,9 @@ export class CamService {
         '-t 3600', // Set the total duration to 1 hour (3600 seconds)
       ])
       .output(playlistPath)
-
-      // .output(outputFilePath)
       .on('error', (err) => {
         console.error('FFmpeg error:', err);
         stream.end();
-        // reject(err); // Reject the promise on error
       })
       .on('start', async (commandLine) => {
         console.log('Spawned FFmpeg with command:', commandLine);

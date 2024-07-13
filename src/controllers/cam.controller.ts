@@ -67,6 +67,7 @@ export class UserController {
       config?: any;
       resolution?: string;
       crf?: string;
+      active?: boolean;
     },
   ) {
     if (body.id) {
@@ -98,8 +99,9 @@ export class UserController {
 
       await this.camService.insert({
         ...existCam,
-        name: body.name,
-        description: body.description,
+        name: body.name || existCam.name,
+        description: body.description || existCam.description,
+        active: body.active || existCam.active,
       });
 
       const existProvider = await this.providerService.findOne({
@@ -116,14 +118,6 @@ export class UserController {
       if (body.identify) {
         providerPayload['identify'] = JSON.stringify(body.identify);
       }
-      console.log('providerPayload', providerPayload);
-
-      console.log('existProvider,', existProvider);
-
-      console.log(22, {
-        ...existProvider,
-        ...providerPayload,
-      });
 
       await this.providerService.insert({
         ...existProvider,
