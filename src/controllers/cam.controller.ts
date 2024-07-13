@@ -195,7 +195,7 @@ export class UserController {
             idCam: camConfig.idCam,
           },
         });
-        delete camConfig.provider.identify;
+        if (camConfig.provider?.identify) delete camConfig.provider.identify;
         return {
           ...camConfig,
           notis,
@@ -206,17 +206,21 @@ export class UserController {
 
   @Get('/callback')
   async CallbackTest(@Query('code') code: string) {
+    console.log('code', code);
+
     const CLIENT_ID = 'Ov23libjpBs67j1mlcJy';
     const CLIENT_SECRET = '9d10d4e8a62f1a7ba7ea80f87f3097bfab761021';
     const baseService = new BaseService(
       'https://github.com/login/oauth/access_token',
     );
-    const accessToken = await baseService.post('', {
+    const response: any = await baseService.post('', {
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
       code: code,
+      grant_type: 'authorization_code',
     });
+    console.log('response', response);
 
-    console.log('accessToken', accessToken);
+    return { code, accessToken: response.data };
   }
 }
