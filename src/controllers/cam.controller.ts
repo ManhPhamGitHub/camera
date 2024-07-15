@@ -212,13 +212,26 @@ export class UserController {
   ) {
     return await Promise.all(
       body.map(async (item) => {
-        await this.notiService.insert(
-          new Noti({
-            idCam: item.idCam,
+        const existNoti = await this.notiService.findOne({
+          where: {
+            id: item.id,
+          },
+        });
+        if (existNoti) {
+          await this.notiService.insert({
+            ...existNoti,
             channel: item.channel,
             config: item.config,
-          }),
-        );
+          });
+        } else {
+          await this.notiService.insert(
+            new Noti({
+              idCam: item.idCam,
+              channel: item.channel,
+              config: item.config,
+            }),
+          );
+        }
       }),
     );
   }
