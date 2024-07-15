@@ -204,6 +204,25 @@ export class UserController {
     );
   }
 
+  @Put('/:id/noti')
+  async createNoti(
+    @Param('id') id: string,
+    @Body()
+    body: any,
+  ) {
+    return await Promise.all(
+      body.map(async (item) => {
+        await this.notiService.insert(
+          new Noti({
+            idCam: item.idCam,
+            channel: item.channel,
+            config: item.config,
+          }),
+        );
+      }),
+    );
+  }
+
   @Get('/callback')
   async CallbackTest(@Query('code') code: string) {
     console.log('code', code);
