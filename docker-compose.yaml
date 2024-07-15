@@ -22,17 +22,17 @@ services:
     networks:
       - backend
 
-  camera-backend:
-    restart: always
-    volumes:
-      - ./:/app
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - 8000:8000
-    networks:
-      - backend
+  # camera-backend:
+  #   restart: always
+  #   volumes:
+  #     - ./:/app
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   ports:
+  #     - 8000:8000
+  #   networks:
+  #     - backend
 volumes:
   mysql-data:
 
