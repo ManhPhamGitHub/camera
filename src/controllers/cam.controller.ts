@@ -240,8 +240,8 @@ export class UserController {
   async CallbackTest(@Query('code') code: string) {
     console.log('code', code);
 
-    const CLIENT_ID = 'Ov23libjpBs67j1mlcJy';
-    const CLIENT_SECRET = '9d10d4e8a62f1a7ba7ea80f87f3097bfab761021';
+    const CLIENT_ID = 'Iv23lilYDG3TcfcXZNCh';
+    const CLIENT_SECRET = '01c89ccd8038ff46e093d19ee2636cc37a845213';
     const baseService = new BaseService(
       'https://github.com/login/oauth/access_token',
     );
