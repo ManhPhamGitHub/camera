@@ -260,6 +260,6 @@ export class UserController {
     });
     console.log('test', test);
 
-    return { code, accessToken: response.data };
+    return { code, accessToken: response, test: test?.data };
   }
 }
