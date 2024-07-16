@@ -242,13 +242,23 @@ export class UserController {
 
     const CLIENT_ID = 'Iv23lilYDG3TcfcXZNCh';
     const CLIENT_SECRET = '01c89ccd8038ff46e093d19ee2636cc37a845213';
-    const baseService = new BaseService('https://github.com');
-    const response: any = await baseService.post('/login/oauth/access_token', {
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      code: code,
-      grant_type: 'authorization_code',
-    });
+    const baseService = new BaseService('https://git.api-connect.io');
+    const baseServiceGitlab = new BaseService(
+      'https://git.api-connect.io/oauth/token',
+    );
+
+    const response: any = await baseServiceGitlab.post(
+      '/login/oauth/access_token',
+      {
+        client_id:
+          '2084aa1c1383ae5bbcf9a2e25b7a87d352328bdea81a17a47f50717961470de8',
+        client_secret:
+          'gloas-fd1ebac8ce06cdf2ffcea50e576a2bad9179778e4085e5c27f4bab1994b6e7ef',
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: 'http://42.96.58.232:8000/api/v1/camera/callback',
+      },
+    );
     console.log('response', response);
     const accessToken = response.data
       .split('&')[0]
