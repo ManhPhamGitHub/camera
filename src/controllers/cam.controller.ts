@@ -242,18 +242,16 @@ export class UserController {
 
     const CLIENT_ID = 'Iv23lilYDG3TcfcXZNCh';
     const CLIENT_SECRET = '01c89ccd8038ff46e093d19ee2636cc37a845213';
-    const baseService = new BaseService('https://git.api-connect.io');
-    const baseServiceGitlab = new BaseService(
-      'https://git.api-connect.io/oauth/token',
-    );
+    const baseService = new BaseService('https://github.com');
+    const baseServiceGitlab = new BaseService('https://gitlab.com/oauth/token');
 
     const response: any = await baseServiceGitlab.post(
       '/login/oauth/access_token',
       {
         client_id:
-          '2084aa1c1383ae5bbcf9a2e25b7a87d352328bdea81a17a47f50717961470de8',
+          '5bfd621387a641d5fc19be4fb451005852bd78558919cbf607093ae617cb93b7',
         client_secret:
-          'gloas-fd1ebac8ce06cdf2ffcea50e576a2bad9179778e4085e5c27f4bab1994b6e7ef',
+          'gloas-b85af7ecbd365d3f5ea905e1b1701f23364b79a35322412263f4949f4adfa6d0',
         code: code,
         grant_type: 'authorization_code',
         redirect_uri: 'http://42.96.58.232:8000/api/v1/camera/callback',
@@ -265,7 +263,7 @@ export class UserController {
       .replace('access_token=', '');
     console.log('accessToken', accessToken);
 
-    const baseService1 = new BaseService('https://api.github.com/user');
+    const baseService1 = new BaseService('https://api.gitlab.com/user');
 
     const test: any = await baseService1.get('', {
       headers: { Authorization: `token ${accessToken}` },
