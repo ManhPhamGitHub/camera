@@ -259,6 +259,6 @@ export class UserController {
       headers: { Authorization: `token ${accessToken}` },
     });
 
-    return { code, accessToken: response.data, test };
+    return { code, accessToken: response.data, test: test.data };
   }
 }
