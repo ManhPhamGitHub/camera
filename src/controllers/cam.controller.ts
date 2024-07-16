@@ -255,7 +255,9 @@ export class UserController {
       .replace('access_token=', '');
     console.log('accessToken', accessToken);
 
-    const test: any = await baseService.get('user', {
+    const baseService1 = new BaseService('https://api.github.com/user');
+
+    const test: any = await baseService1.get('', {
       headers: { Authorization: `token ${accessToken}` },
     });
     console.log('test', test);
