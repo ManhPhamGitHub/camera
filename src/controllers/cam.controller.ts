@@ -242,17 +242,23 @@ export class UserController {
 
     const CLIENT_ID = 'Iv23lilYDG3TcfcXZNCh';
     const CLIENT_SECRET = '01c89ccd8038ff46e093d19ee2636cc37a845213';
-    const baseService = new BaseService(
-      'https://github.com/login/oauth/access_token',
-    );
-    const response: any = await baseService.post('', {
+    const baseService = new BaseService('https://github.com');
+    const response: any = await baseService.post('/login/oauth/access_token', {
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
       code: code,
       grant_type: 'authorization_code',
     });
     console.log('response', response);
+    const accessToken = response.data
+      .split('&')[0]
+      .replace('access_token=', '');
+    console.log('accessToken', accessToken);
 
-    return { code, accessToken: response.data };
+    const test: any = await baseService.get('user', {
+      headers: { Authorization: `token ${accessToken}` },
+    });
+
+    return { code, accessToken: response.data, test };
   }
 }
