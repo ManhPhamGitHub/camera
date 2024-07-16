@@ -258,7 +258,8 @@ export class UserController {
     const test: any = await baseService.get('user', {
       headers: { Authorization: `token ${accessToken}` },
     });
+    console.log('test', test);
 
-    return { code, accessToken: response.data, test: test.data };
+    return { code, accessToken: response.data };
   }
 }
