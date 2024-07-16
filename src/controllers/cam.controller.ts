@@ -242,21 +242,20 @@ export class UserController {
 
     const CLIENT_ID = 'Iv23lilYDG3TcfcXZNCh';
     const CLIENT_SECRET = '01c89ccd8038ff46e093d19ee2636cc37a845213';
-    const baseService = new BaseService('https://github.com');
+    const baseService = new BaseService(
+      'https://github.com/login/oauth/access_token',
+    );
     const baseServiceGitlab = new BaseService('https://gitlab.com/oauth/token');
 
-    const response: any = await baseServiceGitlab.post(
-      '/login/oauth/access_token',
-      {
-        client_id:
-          '5bfd621387a641d5fc19be4fb451005852bd78558919cbf607093ae617cb93b7',
-        client_secret:
-          'gloas-b85af7ecbd365d3f5ea905e1b1701f23364b79a35322412263f4949f4adfa6d0',
-        code: code,
-        grant_type: 'authorization_code',
-        redirect_uri: 'http://42.96.58.232:8000/api/v1/camera/callback',
-      },
-    );
+    const response: any = await baseServiceGitlab.post('', {
+      client_id:
+        '5bfd621387a641d5fc19be4fb451005852bd78558919cbf607093ae617cb93b7',
+      client_secret:
+        'gloas-b85af7ecbd365d3f5ea905e1b1701f23364b79a35322412263f4949f4adfa6d0',
+      code: code,
+      grant_type: 'authorization_code',
+      redirect_uri: 'http://42.96.58.232:8000/api/v1/camera/callback',
+    });
     console.log('response', response);
     const accessToken = response.data
       .split('&')[0]
