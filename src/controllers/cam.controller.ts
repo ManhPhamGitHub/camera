@@ -96,6 +96,7 @@ export class UserController {
           id: existCamConfig.idCam,
         },
       });
+      console.log('body.active', body.active);
 
       await this.camService.insert({
         ...existCam,
