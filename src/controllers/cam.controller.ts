@@ -104,6 +104,14 @@ export class UserController {
       if (body.active) {
         activeCamera = body.active;
       }
+      console.log('activeCamera', activeCamera);
+      console.log(33333333333, {
+        ...existCam,
+        name: body.name || existCam.name,
+        description: body.description || existCam.description,
+        active: activeCamera,
+      });
+
       await this.camService.insert({
         ...existCam,
         name: body.name || existCam.name,
