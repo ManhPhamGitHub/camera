@@ -183,6 +183,11 @@ export const env = convict({
     default: 'test',
     env: 'ENCRYPT_KEY',
   },
+  github_client_secret: {
+    format: String,
+    default: 'test',
+    env: 'GITHUB_SECRET_KEY',
+  },
 });
 
 export default env;
