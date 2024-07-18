@@ -70,6 +70,8 @@ export class UserController {
       active?: boolean;
     },
   ) {
+    console.log('bodybody', body);
+
     if (body.id) {
       console.log(1111111111111111, body);
 
