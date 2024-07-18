@@ -100,13 +100,15 @@ export class UserController {
           id: existCamConfig.idCam,
         },
       });
-      console.log('body.active', body.active);
-
+      let activeCamera = existCam.active;
+      if (body.active) {
+        activeCamera = body.active;
+      }
       await this.camService.insert({
         ...existCam,
         name: body.name || existCam.name,
         description: body.description || existCam.description,
-        active: body.active || existCam.active,
+        active: activeCamera,
       });
 
       const existProvider = await this.providerService.findOne({
