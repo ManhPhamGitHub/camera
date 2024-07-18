@@ -101,7 +101,7 @@ export class UserController {
         },
       });
       let activeCamera = existCam.active;
-      if (body.active) {
+      if (body.active !== null && body.active !== undefined) {
         activeCamera = body.active;
       }
       console.log('activeCamera', activeCamera);
