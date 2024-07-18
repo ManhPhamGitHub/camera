@@ -41,7 +41,7 @@ export class Cam {
   @Expose()
   description: string;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   @Expose()
   active: boolean;
 
