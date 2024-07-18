@@ -71,6 +71,8 @@ export class UserController {
     },
   ) {
     if (body.id) {
+      console.log(1111111111111111, body);
+
       const existCamConfig = await this.camConfig.findOne({
         where: {
           id: body.id,
