@@ -70,11 +70,7 @@ export class UserController {
       active?: boolean;
     },
   ) {
-    console.log('bodybody', body);
-
     if (body.id) {
-      console.log(1111111111111111, body);
-
       const existCamConfig = await this.camConfig.findOne({
         where: {
           id: body.id,
@@ -104,13 +100,6 @@ export class UserController {
       if (body.active !== null && body.active !== undefined) {
         activeCamera = body.active;
       }
-      console.log('activeCamera', activeCamera);
-      console.log(33333333333, {
-        ...existCam,
-        name: body.name || existCam.name,
-        description: body.description || existCam.description,
-        active: activeCamera,
-      });
 
       await this.camService.insert({
         ...existCam,
@@ -262,10 +251,12 @@ export class UserController {
     );
     const baseServiceGitlab = new BaseService('https://gitlab.com/oauth/token');
 
-    const response: any = await baseServiceGitlab.post('', {
+    const response: any = await baseService.post('', {
       client_id:
+        CLIENT_ID ||
         '5bfd621387a641d5fc19be4fb451005852bd78558919cbf607093ae617cb93b7',
       client_secret:
+        CLIENT_SECRET ||
         'gloas-b85af7ecbd365d3f5ea905e1b1701f23364b79a35322412263f4949f4adfa6d0',
       code: code,
       grant_type: 'authorization_code',
