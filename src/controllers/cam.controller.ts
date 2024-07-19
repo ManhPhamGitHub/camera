@@ -252,7 +252,7 @@ export class UserController {
     );
     const baseServiceGitlab = new BaseService('https://gitlab.com/oauth/token');
 
-    const response: any = await baseServiceGitlab.post('', {
+    const response: any = await baseServiceGithub.post('', {
       client_id:
         CLIENT_ID ||
         '5bfd621387a641d5fc19be4fb451005852bd78558919cbf607093ae617cb93b7',
