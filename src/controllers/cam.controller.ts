@@ -247,7 +247,7 @@ export class UserController {
 
     const CLIENT_ID = 'Ov23libjpBs67j1mlcJy';
     const CLIENT_SECRET = env.get('github_client_secret');
-    const baseService = new BaseService(
+    const baseServiceGithub = new BaseService(
       'https://github.com/login/oauth/access_token',
     );
     const baseServiceGitlab = new BaseService('https://gitlab.com/oauth/token');
