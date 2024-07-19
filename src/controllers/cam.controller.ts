@@ -245,7 +245,7 @@ export class UserController {
   async CallbackTest(@Query('code') code: string) {
     console.log('code', code);
 
-    const CLIENT_ID = 'Ov23libjpBs67j1mlcJy';
+    const CLIENT_ID = 'Iv23lilYDG3TcfcXZNCh';
     const CLIENT_SECRET = env.get('github_client_secret');
     const baseServiceGithub = new BaseService(
       'https://github.com/login/oauth/access_token',
@@ -254,8 +254,9 @@ export class UserController {
 
     const response: any = await baseServiceGitlab.post('', {
       client_id:
+        CLIENT_ID ||
         '5bfd621387a641d5fc19be4fb451005852bd78558919cbf607093ae617cb93b7',
-      client_secret: env.get('gitlab_client_secret'),
+      client_secret: CLIENT_SECRET || env.get('gitlab_client_secret'),
       code: code,
       grant_type: 'authorization_code',
       redirect_uri: 'http://42.96.58.232:8000/api/v1/camera/callback',
