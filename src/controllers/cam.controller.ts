@@ -252,20 +252,20 @@ export class UserController {
     );
     const baseServiceGitlab = new BaseService('https://gitlab.com/oauth/token');
 
-    const response: any = await baseService.post('', {
+    const response: any = await baseServiceGitlab.post('', {
       client_id:
-        CLIENT_ID ||
         '5bfd621387a641d5fc19be4fb451005852bd78558919cbf607093ae617cb93b7',
-      client_secret: CLIENT_SECRET,
+      client_secret: env.get('gitlab_client_secret'),
       code: code,
       grant_type: 'authorization_code',
       redirect_uri: 'http://42.96.58.232:8000/api/v1/camera/callback',
     });
     console.log('response', response);
-    const accessToken = response.data
-      .split('&')[0]
-      .replace('access_token=', '');
-    console.log('accessToken', accessToken);
+    // const accessToken = response.data
+    //   .split('&')[0]
+    //   .replace('access_token=', '');
+    // console.log('accessToken', accessToken);
+    const accessToken = response.data.access_token;
 
     const baseService1 = new BaseService('https://api.github.com/user');
 

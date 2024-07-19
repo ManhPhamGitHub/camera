@@ -188,6 +188,11 @@ export const env = convict({
     default: 'test',
     env: 'GITHUB_SECRET_KEY',
   },
+  gitlab_client_secret: {
+    format: String,
+    default: 'test',
+    env: 'GITLAB_SECRET_KEY',
+  },
 });
 
 export default env;
