@@ -184,7 +184,10 @@ export class UserController {
   }
 
   @Get('/config')
-  async getCamStorage(@Query('id') id: string, @Query('type') active: string) {
+  async getCamStorage(
+    @Query('id') id: string,
+    @Query('type') active: boolean = true,
+  ) {
     const camConfigs = await this.camConfig.findAll({
       where: { idCam: id, cam: { active: active } },
       relations: {
