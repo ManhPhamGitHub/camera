@@ -223,6 +223,7 @@ export class UserController {
   ) {
     return await Promise.all(
       body.map(async (item) => {
+        if (item.idCam) return;
         const existNoti = await this.notiService.findOne({
           where: {
             id: item.id,
