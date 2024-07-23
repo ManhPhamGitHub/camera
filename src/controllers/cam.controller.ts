@@ -189,6 +189,8 @@ export class UserController {
     @Query('active') active: boolean = true,
   ) {
     const query = active ? { cam: { active: active } } : {};
+    console.log('query', query);
+
     const camConfigs = await this.camConfig.findAll({
       where: { idCam: id, ...query },
       relations: {
