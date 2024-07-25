@@ -156,6 +156,8 @@ export class UserController {
             config: JSON.stringify(body.config),
           }),
         );
+
+        this.camService.startStreaming(camConfig);
       }
     }
   }
