@@ -226,14 +226,14 @@ export class UserController {
     return await Promise.all(
       body.map(async (item) => {
         if (!item.idCam) return;
-        const existNoti = await this.notiService.findOne({
-          where: {
-            id: item.id,
-          },
-        });
-        console.log('existNoti', existNoti, item);
+        if (item.id) {
+          const existNoti = await this.notiService.findOne({
+            where: {
+              id: item.id,
+            },
+          });
+          console.log('existNoti', existNoti, item);
 
-        if (existNoti) {
           await this.notiService.insert({
             ...existNoti,
             channel: item.channel,
