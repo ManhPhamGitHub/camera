@@ -231,6 +231,8 @@ export class UserController {
             id: item.id,
           },
         });
+        console.log('existNoti', existNoti, item);
+
         if (existNoti) {
           await this.notiService.insert({
             ...existNoti,
