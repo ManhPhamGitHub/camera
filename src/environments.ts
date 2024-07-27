@@ -142,12 +142,12 @@ export const env = convict({
     },
     to: {
       format: String,
-      default: 'devops@cmctelecom.vn',
+      default: 'okelalalo@gmail.com',
       env: 'TO_MAIL_SENDER',
     },
     author: {
       format: String,
-      default: 'CMC Cloud',
+      default: 'MANHPD',
       env: 'EMAIL_AUTHOR',
     },
     nodemailerUser: {

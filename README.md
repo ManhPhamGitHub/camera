@@ -54,13 +54,15 @@ yarn start
 
 ### Start RTSP LOCAL
 
-docker run --rm -it -d \
+docker run --name camera3 --rm -it -d \
 -e MTX_PROTOCOLS=tcp \
--p 8554:8554 \
+-p 8557:8554 \
 bluenviron/mediamtx:latest-ffmpeg
 
 ### SEND DATA RECORD TO RTSP LOCAL
 
-ffmpeg -re -stream_loop -1 -i ./src/assets/chillies.mp4 -c copy -f rtsp rtsp://localhost:8554/mystream
+ffmpeg -re -stream_loop -1 -i ./src/assets/21.mp4 -c copy -f rtsp rtsp://localhost:8555/mystream
+ffmpeg -re -stream_loop -1 -i ./src/assets/22.mp4 -c copy -f rtsp rtsp://localhost:8556/mystream
+ffmpeg -re -stream_loop -1 -i ./src/assets/23.mp4 -c copy -f rtsp rtsp://localhost:8557/mystream
 
 pm2 start npm --name "cam-service" -- run "start:dev"

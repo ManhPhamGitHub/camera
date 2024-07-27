@@ -69,6 +69,7 @@ export class UserController {
       resolution?: string;
       crf?: string;
       active?: boolean;
+      isEnable?: boolean;
     },
   ) {
     if (body.id) {
@@ -128,6 +129,21 @@ export class UserController {
         ...existProvider,
         ...providerPayload,
       });
+
+      if (body.isEnable) {
+        let cameraConfig = await this.camConfig.findOne({
+          where: {
+            id: body.id,
+          },
+          relations: {
+            provider: true,
+            storages: true,
+            cam: true,
+          },
+        });
+
+        await this.camService.startStreaming(cameraConfig);
+      }
     } else {
       {
         const cam = await this.camService.insert(
@@ -157,7 +173,18 @@ export class UserController {
           }),
         );
 
-        this.camService.startStreaming(camConfig);
+        const cameraConfig = await this.camConfig.findOne({
+          where: {
+            id: camConfig.id,
+          },
+          relations: {
+            provider: true,
+            storages: true,
+            cam: true,
+          },
+        });
+
+        this.camService.startStreaming(cameraConfig);
       }
     }
   }
