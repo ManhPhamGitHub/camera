@@ -20,7 +20,7 @@ yarn install
 yarn run typeorm:run-migrations
 yarn start:dev
 ```
-
+1123
 #### Seed data for database (Only once execution)
 
 ```shell
